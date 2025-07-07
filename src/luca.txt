@@ -1,0 +1,82 @@
+#include <Arduino.h>
+
+//#define SERVO 1 // Define this to use the servo functionality
+
+#if defined(SERVO)
+#include <ESP32Servo.h>
+
+Servo servo5;
+// Published values for SG90 servos; adjust if needed
+int minUs = 500;
+int maxUs = 2400;
+
+int servo5Pin = 17;
+
+int pos = 0; // position in degrees
+ESP32PWM pwm;
+
+void ouvrir(void);
+void fermer(void);
+#endif
+
+bool code = true; // Set to true to open the servo, false to close it
+
+#if defined(SERVO)
+void ouvrir()
+{
+ servo5.write(0);
+ delay(2500);
+}
+
+void fermer()
+{
+ servo5.write(180);
+ delay(2500);
+}
+#endif
+
+void setup()
+{
+ // Allow allocation of all timers
+#if defined(SERVO)
+ ESP32PWM::allocateTimer(0);
+ ESP32PWM::allocateTimer(1);
+ ESP32PWM::allocateTimer(2);
+ ESP32PWM::allocateTimer(3);
+#endif
+ Serial.begin(115200);
+
+
+#if defined(SERVO)
+ Serial.print("Servo v");
+ Serial.println(SERVO);
+
+ servo5.setPeriodHertz(100); // Standard 50hz servo
+
+ pwm.attachPin(17, 6000); // 10khz
+
+ servo5.attach(servo5Pin, minUs, maxUs);
+#endif
+}
+
+void loop()
+{
+
+ if (code == true)
+ {
+#if defined(SERVO)
+  ouvrir();
+#endif
+ }
+ else
+ {
+#if defined(SERVO)
+  fermer();
+#endif
+ }
+#if defined(SERVO)
+ // servo5.detach();
+ // pwm.detachPin(27);
+#endif
+}
+ 
